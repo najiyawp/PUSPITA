@@ -7,48 +7,34 @@ export const useCart = () => {
 };
 
 export const CartProvider = ({ children }) => {
-  // 1. Inisialisasi State dari LocalStorage
+  // 1. Ambil data awal dari LocalStorage
   const [cart, setCart] = useState(() => {
     try {
       const storedCart = localStorage.getItem('puspitaCart');
-      // Pastikan data ada dan tidak kosong
       return (storedCart && storedCart !== "undefined") ? JSON.parse(storedCart) : [];
     } catch (error) {
-      console.error("Error loading cart from localStorage:", error);
+      console.error("Error loading cart:", error);
       return [];
     }
   });
 
-  // 2. Simpan ke LocalStorage otomatis saat state 'cart' berubah
+  // 2. Simpan ke LocalStorage setiap ada perubahan pada state cart
   useEffect(() => {
-    try {
-      localStorage.setItem('puspitaCart', JSON.stringify(cart));
-    } catch (error) {
-      console.error("Error saving cart to localStorage:", error);
-    }
+    localStorage.setItem('puspitaCart', JSON.stringify(cart));
   }, [cart]);
 
-  // 3. Fungsi Tambah Barang
+  // 3. Fungsi Tambah ke Keranjang
   const addToCart = (product, quantity = 1) => {
     setCart(prevCart => {
       const existingItem = prevCart.find(item => item.id === product.id);
-
       if (existingItem) {
         return prevCart.map(item =>
           item.id === product.id
             ? { ...item, quantity: item.quantity + quantity }
             : item
         );
-      } else {
-        return [
-          ...prevCart,
-          {
-            ...product,
-            quantity: quantity,
-            isSelected: true,
-          },
-        ];
       }
+      return [...prevCart, { ...product, quantity, isSelected: true }];
     });
   };
 
@@ -56,35 +42,35 @@ export const CartProvider = ({ children }) => {
   const updateQuantity = (id, delta) => {
     setCart(prevCart =>
       prevCart.map(item =>
-        item.id === id 
-          ? { ...item, quantity: Math.max(1, item.quantity + delta) }
-          : item
+        item.id === id ? { ...item, quantity: Math.max(1, item.quantity + delta) } : item
       )
     );
   };
 
-  // 5. Fungsi Hapus Per Item
+  // 5. Fungsi Hapus Item Secara Manual (Tombol Trash)
   const removeItem = (id) => {
     setCart(prevCart => prevCart.filter(item => item.id !== id));
   };
 
-  // 6. Fungsi Centang/Pilih Barang
+  // 6. Fungsi Centang/Pilih Item
   const toggleSelect = (id) => {
     setCart(prevCart =>
       prevCart.map(item =>
-        item.id === id 
-          ? { ...item, isSelected: !item.isSelected }
-          : item
+        item.id === id ? { ...item, isSelected: !item.isSelected } : item
       )
     );
   };
 
-  // 7. Fungsi Kosongkan Keranjang (Setelah Checkout/Manual)
+  /**
+   * 7. FUNGSI KRUSIAL: clearCart (Hanya hapus yang dipilih)
+   * Logika: Kita simpan (filter) item yang isSelected-nya FALSE.
+   * Jadi barang yang tidak dicentang tidak akan hilang setelah checkout.
+   */
   const clearCart = () => {
-    setCart([]);
+    setCart(prevCart => prevCart.filter(item => !item.isSelected));
   };
 
-  // 8. Hitung Total Harga Otomatis (Hanya yang dicentang)
+  // 8. Hitung Total Harga (Hanya untuk item yang isSelected: true)
   const totalKeranjang = cart.reduce((total, item) => {
     return item.isSelected ? total + (item.price * item.quantity) : total;
   }, 0);
