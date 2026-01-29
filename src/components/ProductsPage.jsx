@@ -52,7 +52,7 @@ const ProductsPage = () => {
     };
 
     return (
-        <div className="w-full min-h-screen bg-[#f7efda] text-[#3e8440] font-margarine relative">
+        <div className="w-full min-h-screen bg-[url('data:image/svg+xml,<svg id=%27patternId%27 width=%27100%25%27 height=%27100%25%27 xmlns=%27http://www.w3.org/2000/svg%27><defs><pattern id=%27a%27 patternUnits=%27userSpaceOnUse%27 width=%2720%27 height=%2720%27 patternTransform=%27scale(2)rotate(0)%27><rect x=%270%27 y=%270%27 width=%27100%25%27 height=%27100%25%27 fill=%27%23f7efdaff%27/><path d=%27M0 0h10v10H0z%27 stroke-width=%271%27 stroke=%27none%27 fill=%27%23badd7fff%27/><path d=%27M10 10h10v10H10z%27 stroke-width=%271%27 stroke=%27none%27 fill=%27%23badd7fff%27/></pattern></defs><rect width=%27800%25%27 height=%27800%25%27 fill=%27url(%23a)%27/></svg>')] text-[#3e8440] font-margarine relative">
             {/* HEADER */}
             <div className="flex justify-between items-center px-6 py-4">
                 <button

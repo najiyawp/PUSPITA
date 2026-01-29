@@ -55,7 +55,7 @@ const CartPage = () => {
 
             <h1 className="text-4xl font-bold mb-8">Keranjang kamu</h1>
 
-            <div className="border-2 border-[#3e8440] rounded-[40px] p-10 bg-white shadow-lg">
+            <div className="border-2 border-[#3e8440] rounded-[40px] p-10 bg-[#f7efda] shadow-lg">
                 
                 {cart.length === 0 ? (
                     <p className="text-center text-xl text-[#efaca5] py-10">Keranjang kamu kosong.</p>
@@ -122,7 +122,7 @@ const CartPage = () => {
                     disabled={totalKeranjang === 0}
                     className={`px-12 py-4 rounded-full text-2xl text-[#f7efda] transition-all shadow-lg ${
                         totalKeranjang === 0 
-                        ? 'bg-gray-400 cursor-not-allowed'
+                        ? 'bg-[#efaca5] cursor-not-allowed'
                         : 'bg-[#3e8440] transform hover:scale-105'
                     }`}
                 >
