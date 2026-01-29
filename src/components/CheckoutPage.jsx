@@ -98,11 +98,11 @@ const CheckoutPage = () => {
                                 onClick={() => setDeliveryMethod("delivery")}
                                 className={`flex items-center gap-2 px-6 py-3 rounded-full border-2 transition-all ${
                                     deliveryMethod === "delivery" 
-                                    ? "bg-[#a4c37a] text-[#f7efda] border-[#3e8440]" 
+                                    ? "bg-[#3e8440] text-[#efaca5] border-[#3e8440]" 
                                     : "border-[#3e8440] text-[#3e8440]"
                                 }`}
                             >
-                                <FiTruck className="w-5 h-5" />
+                                <FiTruck className="w-5 h-5 " />
                                 <span>Delivery</span>
                             </button>
                             
@@ -111,8 +111,8 @@ const CheckoutPage = () => {
                                 onClick={() => setDeliveryMethod("pickup")}
                                 className={`flex items-center gap-2 px-6 py-3 rounded-full border-2 transition-all ${
                                     deliveryMethod === "pickup" 
-                                    ? "bg-[#efaca5] text-white border-[#efaca5]" 
-                                    : "border-[#efaca5] text-[#efaca5]"
+                                    ? "bg-[#3e8440] text-[#efaca5] border-[#3e8440]" 
+                                    : "border-[#3e8440] text-[#3e8440]"
                                 }`}
                             >
                                 <FiPackage className="w-5 h-5" />
@@ -129,7 +129,7 @@ const CheckoutPage = () => {
                                 value={formData.namaLengkap}
                                 onChange={handleInputChange}
                                 placeholder="masukan nama lengkap"
-                                className="w-full mt-2 px-4 py-3 rounded-full border-2 border-[#a4c37a] bg-transparent focus:outline-none focus:border-[#86a65e]"
+                                className="w-full mt-2 px-4 py-3 rounded-full border-2 border-[#3e8440] bg-transparent focus:outline-none focus:border-[#badd7f]"
                                 required
                             />
                         </label>
@@ -143,7 +143,7 @@ const CheckoutPage = () => {
                                 value={formData.email}
                                 onChange={handleInputChange}
                                 placeholder="masukan alamat email"
-                                className="w-full mt-2 px-4 py-3 rounded-full border-2 border-[#a4c37a] bg-transparent focus:outline-none focus:border-[#86a65e]"
+                                className="w-full mt-2 px-4 py-3 rounded-full border-2 border-[#3e8440] bg-transparent focus:outline-none focus:border-[#badd7f]"
                                 required
                             />
                         </label>
@@ -157,7 +157,7 @@ const CheckoutPage = () => {
                                 value={formData.nomorTelepon}
                                 onChange={handleInputChange}
                                 placeholder="masukan nomor telepon"
-                                className="w-full mt-2 px-4 py-3 rounded-full border-2 border-[#a4c37a] bg-transparent focus:outline-none focus:border-[#86a65e]"
+                                className="w-full mt-2 px-4 py-3 rounded-full border-2 border-[#3e8440] bg-transparent focus:outline-none focus:border-[#badd7f]"
                                 required
                             />
                         </label>
@@ -171,7 +171,7 @@ const CheckoutPage = () => {
                                 value={formData.alamatLengkap}
                                 onChange={handleInputChange}
                                 placeholder="masukan alamat"
-                                className="w-full mt-2 px-4 py-3 rounded-full border-2 border-[#a4c37a] bg-transparent focus:outline-none focus:border-[#86a65e]"
+                                className="w-full mt-2 px-4 py-3 rounded-full border-2 border-[#3e8440] bg-transparent focus:outline-none focus:border-[#badd7f]"
                                 required
                             />
                         </label>
@@ -185,7 +185,7 @@ const CheckoutPage = () => {
                                 onChange={handleInputChange}
                                 placeholder=""
                                 rows="5"
-                                className="w-full mt-2 px-4 py-3 rounded-3xl border-2 border-[#a4c37a] bg-transparent focus:outline-none focus:border-[#86a65e] resize-none"
+                                className="w-full mt-2 px-4 py-3 rounded-3xl border-2 border-[#3e8440] bg-transparent focus:outline-none focus:border-[#badd7f] resize-none"
                             />
                         </label>
                     </form>
@@ -193,14 +193,14 @@ const CheckoutPage = () => {
 
                 {/* Right Side - Cart Review */}
                 <div className="w-1/2">
-                    <div className="border-4 border-[#a4c37a] rounded-[50px] p-8 bg-white shadow-lg sticky top-10">
-                        <h3 className="text-4xl font-bold text-[#a4c37a] mb-6">Review your cart</h3>
+                    <div className="border-2 border-[#3e8440] rounded-[50px] p-8 bg-[#f7eda] shadow-lg sticky top-20">
+                        <h3 className="text-4xl text-[#3e8440] mb-6">Review your cart</h3>
                         
                         {/* Cart Items */}
                         <div className="space-y-4 mb-8">
                             {selectedItems.map((item) => (
                                 <div key={item.id} className="flex items-start gap-4">
-                                    <div className="w-20 h-20 bg-[#a4c37a] rounded-2xl overflow-hidden flex-shrink-0">
+                                    <div className="w-20 h-20 bg-[#f7efda] rounded-2xl overflow-hidden flex-shrink-0">
                                         <img 
                                             src={item.image} 
                                             alt={item.name}
@@ -208,9 +208,9 @@ const CheckoutPage = () => {
                                         />
                                     </div>
                                     <div className="flex-1">
-                                        <h4 className="text-xl font-bold text-[#a4c37a] capitalize">{item.name}</h4>
+                                        <h4 className="text-xl font-semibold text-[#3e8440] capitalize">{item.name}</h4>
                                         <p className="text-sm text-[#efaca5]">{item.quantity}x</p>
-                                        <p className="text-lg text-[#efaca5] font-bold">Rp. {formatRupiah(item.price * item.quantity)}</p>
+                                        <p className="text-sm text-[#efaca5]">Rp. {formatRupiah(item.price * item.quantity)}</p>
                                     </div>
                                 </div>
                             ))}
@@ -219,23 +219,23 @@ const CheckoutPage = () => {
                         {/* Pricing Summary */}
                         <div className="space-y-3 mb-6">
                             <div className="flex justify-between text-xl">
-                                <span className="text-[#a4c37a]">Subtotal</span>
-                                <span className="text-[#efaca5] font-bold">Rp. {formatRupiah(totalKeranjang)}</span>
+                                <span className="text-[#3e8440]">Subtotal</span>
+                                <span className="text-[#efaca5]">Rp. {formatRupiah(totalKeranjang)}</span>
                             </div>
                             <div className="flex justify-between text-xl">
-                                <span className="text-[#a4c37a]">Shipping fee</span>
-                                <span className="text-[#efaca5] font-bold">Rp. {formatRupiah(shippingFee)}</span>
+                                <span className="text-[#3e8440]">Shipping fee</span>
+                                <span className="text-[#efaca5]">Rp. {formatRupiah(shippingFee)}</span>
                             </div>
-                            <div className="border-t-2 border-[#a4c37a] pt-3 flex justify-between text-2xl">
-                                <span className="text-[#a4c37a] font-bold">Total</span>
-                                <span className="text-[#efaca5] font-bold">Rp. {formatRupiah(grandTotal)}</span>
+                            <div className="border-t-2 border-[#badd7f] pt-3 flex justify-between text-2xl">
+                                <span className="text-[#3e8440]">Total</span>
+                                <span className="text-[#efaca5]">Rp. {formatRupiah(grandTotal)}</span>
                             </div>
                         </div>
 
                         {/* Bayar Button */}
                         <button
                             onClick={handleCheckout}
-                            className="w-full py-4 bg-[#a4c37a] text-white text-2xl font-bold rounded-full hover:bg-[#86a65e] transition-all shadow-lg"
+                            className="w-full py-4 bg-[#3e8440] text-[#efaca5] text-xl rounded-full hover:bg-[#86a65e] transition-all shadow-lg"
                         >
                             Lanjut ke Pembayaran
                         </button>
