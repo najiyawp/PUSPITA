@@ -115,7 +115,7 @@ const PaymentPage = () => {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
           <div>
             <div className="flex items-center gap-3 mb-6">
-              <div className="w-12 h-12 bg-[#a4c37a] rounded-full flex items-center justify-center">
+              <div className="w-12 h-12 bg-[#badd7f] rounded-full flex items-center justify-center">
                 <div className="text-white text-2xl">✿</div>
               </div>
               <div>
@@ -167,7 +167,7 @@ const PaymentPage = () => {
               </div>
             </div>
 
-            <div className="bg-white rounded-2xl p-4 mb-4 border-2 border-[#a4c37a]">
+            <div className="bg-[#f7efda] rounded-2xl p-4 mb-4 border-2 border-[#badd7f]">
               <button 
                 onClick={() => setShowDetails(!showDetails)}
                 className="w-full flex items-center justify-between text-[#3e8440] font-semibold"
@@ -205,8 +205,8 @@ const PaymentPage = () => {
                   onClick={() => setPaymentMethod('QRIS')}
                   className={`flex-1 py-3 px-6 rounded-full border-2 transition font-bold ${
                     paymentMethod === 'QRIS'
-                      ? 'bg-[#a4c37a] text-white border-[#a4c37a]'
-                      : 'bg-white text-[#a4c37a] border-[#a4c37a]'
+                      ? 'bg-[#3e8440] text-[#efaca5] border-[#3e8440]'
+                      : 'bg-[#f7efda] text-[#3e8440] border-[#3e8440]'
                   }`}
                 >
                   QRIS
@@ -215,8 +215,8 @@ const PaymentPage = () => {
                   onClick={() => setPaymentMethod('COD')}
                   className={`flex-1 py-3 px-6 rounded-full border-2 transition font-bold ${
                     paymentMethod === 'COD'
-                      ? 'bg-[#efaca5] text-white border-[#efaca5]'
-                      : 'bg-white text-[#efaca5] border-[#efaca5]'
+                      ? 'bg-[#3e8440] text-[#efaca5] border-[#3e8440]'
+                      : 'bg-[#f7efda] text-[#3e8440] border-[#3e8440]'
                   }`}
                 >
                   COD
@@ -226,14 +226,14 @@ const PaymentPage = () => {
 
             <button
               onClick={handlePayment}
-              className="w-full bg-[#a4c37a] text-white py-4 rounded-full font-bold text-lg hover:bg-[#86a65e] transition shadow-lg"
+              className="w-full bg-[#badd7f] text-[#3e8440] py-4 rounded-full font-bold text-lg hover:bg-[#3e8440] hover:text-[#efaca5] transition shadow-lg"
             >
               Bayar
             </button>
           </div>
 
-          <div className="bg-white border-4 border-[#a4c37a] rounded-[50px] p-8 h-fit sticky top-8">
-            <h3 className="text-[#a4c37a] font-bold text-3xl text-center mb-2">
+          <div className="bg-[#f7efda] border-2 border-[#badd7f] rounded-[70px] p-8 h-fit sticky top-8">
+            <h3 className="text-[#3e8440] font-bold text-3xl text-center mb-2">
               Ringkasan Pesanan
             </h3>
             {/* ⭐ Perubahan teks: Order ID akan dibuat setelah pembayaran */}
@@ -267,7 +267,7 @@ const PaymentPage = () => {
               </div>
             </div>
 
-            <div className="border-t-2 border-[#a4c37a] pt-4 space-y-2">
+            <div className="border-t-2 border-[#badd7f] pt-4 space-y-2">
               <div className="flex justify-between">
                 <span className="text-[#3e8440]">Subtotal</span>
                 <span className="text-[#efaca5]">Rp. {formatRupiah(orderData.subtotal)}</span>
