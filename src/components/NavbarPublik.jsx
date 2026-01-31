@@ -57,7 +57,7 @@ const handleArtworkClick = () => {
 
   return (
 <nav className="fixed top-0 left-0 w-full flex justify-center z-50 bg-transparent">
-  <div className="bg-[#EFACA5]/80 backdrop-blur-md px-12 py-4 rounded-full flex justify-between items-center w-full max-w-4xl text-[#3E8440] font-margarine tracking-wider shadow-lg mt-6">
+  <div className="bg-[#EFACA5]/72 backdrop-blur-md px-12 py-4 rounded-full flex justify-between items-center w-full max-w-4xl text-[#3E8440] font-margarine tracking-wider shadow-lg mt-6">
 
 
         {/* Bagian Kiri - ABOUT & ARTWORK */}

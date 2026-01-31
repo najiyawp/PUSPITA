@@ -64,7 +64,7 @@ const Homepage = () => {
 
         <button 
           onClick={handleBuyClick}
-          className='mt-10 border-2 border-white text-[#F7EFDA] px-12 py-3 rounded-full font-margarine text-xl tracking-wide transition-all duration-500 ease-in-out shadow-lg bg-gradient-to-r from-[#3E8440] to-[#EFACA5] hover:bg-gradient-to-r hover:from-[#EFACA5] hover:to-[#3E8440] active:bg-gradient-to-r active:from-[#EFACA5] active:to-[#3E8440] active:border-white'
+          className='mt-10  border-2 border-[#3e8440] text-[#f7efda] px-12 py-3 rounded-full font-margarine text-xl hover:border-[#3e8440] hover:bg-[#3e8440] hover:text-[#efaca5]'
         >
             Explore with us 
         </button>

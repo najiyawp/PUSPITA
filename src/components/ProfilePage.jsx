@@ -11,6 +11,7 @@ import {
     getDocs 
 } from "firebase/firestore";
 import { signOut } from "firebase/auth";
+import { useCart } from "../context/CartContext";
 
 const ProfilePage = () => {
     const navigate = useNavigate();
@@ -18,6 +19,7 @@ const ProfilePage = () => {
     const [orderHistory, setOrderHistory] = useState([]);
     const [loading, setLoading] = useState(true);
     const [photoURL, setPhotoURL] = useState(null);
+    const { addToCart } = useCart();
 
     const formatRupiah = (number) => {
         if (!number) return "0";
@@ -69,6 +71,19 @@ const ProfilePage = () => {
         await signOut(auth);
         navigate("/login");
     };
+
+    const handleBeliLagi = (order)  => {
+        order.items.forEach(item => {
+            addToCart({
+                ...item,
+                quantity: item.quantity
+            });
+        });
+
+        navigate("/cart");
+    }
+
+    
 
     if (loading) {
         return (
@@ -189,6 +204,13 @@ const ProfilePage = () => {
                             <p className="text-lg font-semibold">
                                 Total Pembayaran: Rp {formatRupiah(order.grandTotal)}
                             </p>
+
+                            <button
+                                onClick={() => handleBeliLagi(order)}
+                                className="mt-6 px-8 py-2 border-2 border-[#badd7f] bg-[#f7efda] text-[#3e8440] text-semibold hover:bg-[#3e8440] hover:text-[#badd7f] hover:border-[#3e8440] rounded-full"
+                            >
+                                BELi LAGi
+                            </button>
                         </div>
                     ))}
                 </div>
