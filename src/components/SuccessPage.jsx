@@ -1,28 +1,25 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { FiShoppingCart, FiUser } from 'react-icons/fi';
-// ⭐ BARU: Imports Firebase
 import { db } from '../firebase'; 
 import { doc, getDoc } from 'firebase/firestore'; 
-// ===================================
+// ⭐ Import Framer Motion
+import { motion } from 'framer-motion';
 
 const SuccessPage = () => {
   const navigate = useNavigate();
   const location = useLocation();
   
-  // Ambil orderId dari state (jika ada)
   const initialOrderId = location.state?.orderData?.orderId;
   
-  // State untuk menyimpan data yang sudah di-fetch
   const [orderData, setOrderData] = useState(null); 
   const [loading, setLoading] = useState(true);
 
-  // ⭐ LOGIKA FETCH DARI FIRESTORE
   useEffect(() => {
     const fetchOrder = async (orderId) => {
         if (!orderId) {
             setLoading(false);
-            return; // Order ID tidak ada, biarkan error message default muncul
+            return;
         }
 
         try {
@@ -30,7 +27,6 @@ const SuccessPage = () => {
             const docSnap = await getDoc(orderRef);
 
             if (docSnap.exists()) {
-                // Set data yang diambil dari database
                 setOrderData({ id: docSnap.id, ...docSnap.data() }); 
             }
         } catch (error) {
@@ -41,28 +37,23 @@ const SuccessPage = () => {
     };
 
     if (initialOrderId) {
-        // Jika ada ID dari navigation state, langsung fetch
         fetchOrder(initialOrderId);
     } else {
-        // ⚠️ Peringatan: Jika state hilang (refresh) dan orderId tidak ada di URL, 
-        // kita tidak bisa fetch. Untuk solusi paling ideal, orderId harusnya ada di URL parameter.
         setLoading(false); 
     }
-  }, [initialOrderId]); // Hanya fetch ketika initialOrderId berubah
+  }, [initialOrderId]);
 
   const handleTrackOrder = () => {
     navigate('/order-tracking', { 
-      state: { orderData } // Pass data yang sudah di-fetch ke tracking page
+      state: { orderData } 
     });
   };
 
   const formatRupiah = (number) => {
-    // Memastikan input adalah number sebelum format
     if (typeof number !== 'number') return '0';
     return number.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
   };
 
-  // Tampilkan loading saat proses fetch
   if (loading) {
     return (
         <div className="min-h-screen bg-[#f7efda] flex items-center justify-center">
@@ -71,10 +62,9 @@ const SuccessPage = () => {
     );
   }
 
-  // Tampilkan error jika data tidak ditemukan (misal: setelah refresh tanpa orderId di URL)
   if (!orderData) {
     return (
-      <div className="min-h-screen bg-[#f7efda] flex items-center justify-center">
+      <div className="min-h-screen bg-[#f7efda] flex items-center justify-center font-margarine">
         <div className="text-center">
           <p className="text-[#3e8440] mb-4">Data pesanan tidak ditemukan. Silakan cek riwayat pesanan.</p>
           <button
@@ -87,12 +77,11 @@ const SuccessPage = () => {
     );
   }
 
-  const orderId = orderData.id || `N/A`; // Gunakan ID dari dokumen Firestore
+  const orderId = orderData.id || `N/A`;
 
   return (
     <div className="min-h-screen bg-[#f7efda] font-margarine flex flex-col items-center">
-        {/* Header, dll. */}
-        <header className="w-full flex justify-between items-center py-6 max-w-7xl">
+        <header className="w-full flex justify-between items-center py-6 px-8 max-w-7xl">
             <button
                 onClick={() => navigate("/cart")}
                 className="flex items-center gap-2 text-[#badd7f] text-lg"
@@ -112,27 +101,72 @@ const SuccessPage = () => {
             </div>
         </header>
 
-      <div className="max-w-xl w-full px-6 py-8">
-        {/* ⭐ KONTEN SEKARANG LANGSUNG DI SINI (container putih dihapus) */}
-        <div className="p-12 text-center"> {/* Menggantikan container putih, hanya mempertahankan padding dan text-center */}
-          <div className="w-20 h-20 bg-[#a4c37a] rounded-full flex items-center justify-center mx-auto mb-6 shadow-lg">
-            <svg className="w-10 h-10 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-            </svg>
-          </div>
-
-          <h3 className="text-[#3e8440] font-bold text-4xl mb-2">Pesanan anda telah di buat</h3>
+      <motion.div 
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.6 }}
+        className="max-w-xl w-full px-6 py-8"
+      >
+        <div className="p-12 text-center">
           
-          <p className="text-[#efaca5] text-lg mb-8">
-            Selamat. Pesanan kamu telah kami terima, terima kasih sudah memesan 
-          </p>
+          {/* ⭐ ANIMASI LINGKARAN & CENTANG */}
+          <motion.div 
+            initial={{ scale: 0 }}
+            animate={{ scale: 1 }}
+            transition={{ type: "spring", stiffness: 260, damping: 20, delay: 0.1 }}
+            className="w-20 h-20 bg-[#a4c37a] rounded-full flex items-center justify-center mx-auto mb-6 shadow-lg"
+          >
+            <svg className="w-10 h-10 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <motion.path 
+                initial={{ pathLength: 0, opacity: 0 }}
+                animate={{ pathLength: 1, opacity: 1 }}
+                transition={{ 
+                  duration: 0.8, 
+                  ease: "easeInOut", 
+                  delay: 0.5 // Muncul setelah lingkaran selesai pop-up
+                }}
+                strokeLinecap="round" 
+                strokeLinejoin="round" 
+                strokeWidth={3} 
+                d="M5 13l4 4L19 7" 
+              />
+            </svg>
+          </motion.div>
 
-          <div className="bg-[#f7efda] rounded-xl p-6 text-center mb-8"> 
+          <motion.h3 
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.8 }}
+            className="text-[#3e8440] font-bold text-4xl mb-2"
+          >
+            Pesanan anda telah dibuat
+          </motion.h3>
+          
+          <motion.p 
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 1 }}
+            className="text-[#efaca5] text-lg mb-8"
+          >
+            Selamat. Pesanan kamu telah kami terima, terima kasih sudah memesan 
+          </motion.p>
+
+          <motion.div 
+            initial={{ scale: 0.9, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            transition={{ delay: 1.2 }}
+            className="bg-[#f7efda] rounded-xl p-6 text-center mb-8 border border-[#e5dec9]"
+          > 
             <p className="text-[#3e8440] font-semibold text-lg mb-2">Order ID</p>
             <p className="text-[#efaca5] font-bold text-2xl">{orderId}</p>
-          </div>
+          </motion.div>
 
-          <div className="grid grid-cols-2 gap-4 text-sm mb-10">
+          <motion.div 
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 1.4 }}
+            className="grid grid-cols-2 gap-4 text-sm mb-10"
+          >
             <div className="text-left">
               <p className="text-[#3e8440] font-semibold mb-1">Status Pembayaran</p>
               <p className="text-[#efaca5] text-lg capitalize">
@@ -142,35 +176,40 @@ const SuccessPage = () => {
             
             <div className="text-left">
               <p className="text-[#3e8440] font-semibold mb-1">Produk</p>
-              <p className="text-[#efaca5] text-sm">
+              <div className="text-[#efaca5] text-sm">
                 {orderData.items.map((item, index) => (
                   <span key={index}>
                     {item.name} ({item.quantity}x)
                     {index < orderData.items.length - 1 ? ', ' : ''}
                   </span>
                 ))}
-              </p>
+              </div>
             </div>
 
             <div className="text-left">
               <p className="text-[#3e8440] font-semibold mb-1">Tujuan</p>
-              <p className="text-[#efaca5] text-sm">{orderData.formData.alamatLengkap}</p>
+              <p className="text-[#efaca5] text-sm">{orderData.formData?.alamatLengkap || '-'}</p>
             </div>
 
             <div className="text-left">
               <p className="text-[#3e8440] font-semibold mb-1">Total</p>
               <p className="text-[#efaca5] font-bold text-xl">Rp. {formatRupiah(orderData.grandTotal)}</p>
             </div>
-          </div>
+          </motion.div>
 
-          <button
+          <motion.button
+            whileHover={{ scale: 1.02 }}
+            whileTap={{ scale: 0.98 }}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 1.6 }}
             onClick={handleTrackOrder}
             className="w-full mt-4 bg-[#efaca5] text-[#3e8440] py-3 rounded-full font-bold text-lg hover:bg-[#D79A9E] transition-colors shadow-md"
           >
             Lacak Pesanan
-          </button>
+          </motion.button>
         </div>
-      </div>
+      </motion.div>
     </div>
   );
 };

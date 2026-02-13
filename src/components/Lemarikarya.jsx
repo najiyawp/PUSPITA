@@ -33,7 +33,7 @@ const LemariKarya = () => {
 
 
                 {/* BOX GAMBAR */}
-                <div className="w-[80%] max-w-md h-4/6 bg-[#F7EFDA] rounded-3xl border-3 border-[#3E8440] overflow-hidden shadow-lg flex items-center justify-center">
+                <div className="w-[80%] max-w-md h-4/6 bg-[#F7EFDA] rounded-4xl border-3 border-[#3E8440] overflow-hidden shadow-lg flex items-center justify-center">
                     <img
                         src={karyaItems[currentIndex]}
                         className="w-full h-full object-cover transition-all duration-500"
