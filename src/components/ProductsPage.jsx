@@ -79,7 +79,7 @@ const ProductsPage = () => {
             style={gradientStyle}
         >
             {/* 1. HEADER (Atas Sendiri) */}
-            <div className="w-full flex justify-between items-center px-6 py-6 z-30 relative -top-8">
+            <div className="w-full flex justify-between items-center px-6 z-30 relative -bottom-2 -top-4">
                 <button
                     onClick={() => navigate("/")}
                     className="flex items-center gap-1 text-[#3e8440] text-sm bg-white/40 backdrop-blur-md px-4 py-2 rounded-full hover:bg-white transition-all shadow-sm"
@@ -99,7 +99,7 @@ const ProductsPage = () => {
             </div>
 
             {/* 2. BANNER FULL WIDTH (Di Atas Gambar) */}
-            <div className="w-full flex justify-center mb-0">
+            <div className="w-full flex justify-center mb-0 mt-2">
                 <img 
                     src={banner} 
                     alt="Mulai Abadi Banner" 
