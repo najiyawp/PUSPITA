@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import CartIcon from "./CartIcon";
 import { FiArrowLeft, FiShoppingCart, FiUser } from "react-icons/fi";
 import { auth, db } from "../firebase"; 
 import { 
@@ -106,10 +107,7 @@ const ProfilePage = () => {
                 </button>
 
                 <div className="flex gap-6 text-[#efaca5]">
-                    <FiShoppingCart
-                        className="w-6 h-6 cursor-pointer hover:text-[#3e8440]"
-                        onClick={() => navigate("/cart")}
-                    />
+                    <CartIcon />
                     <FiUser className="w-6 h-6" />
                 </div>
             </header>

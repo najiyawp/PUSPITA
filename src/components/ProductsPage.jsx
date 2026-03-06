@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { FiArrowLeft, FiUser, FiShoppingCart, FiChevronLeft, FiChevronRight } from "react-icons/fi";
+import { FiArrowLeft, FiUser, FiChevronLeft, FiChevronRight } from "react-icons/fi";
+import CartIcon from "./CartIcon";
 
 import { db } from "../firebase";
 import { collection, getDocs } from "firebase/firestore";
@@ -205,12 +206,9 @@ const ProductsPage = () => {
             )}
 
             {/* FLOATING CART */}
-            <button
-                onClick={() => navigate("/cart")}
-                className="fixed bottom-10 right-10 w-16 h-16 bg-[#f7efda] text-[#efaca5] border-2 border-[#3e8440] rounded-full shadow-2xl flex items-center justify-center hover:scale-125 transition-all z-50"
-            >
-                <FiShoppingCart className="w-8 h-8" />
-            </button>
+            <div className="fixed bottom-10 right-10 w-16 h-16 bg-[#f7efda] border-2 border-[#3e8440] rounded-full shadow-2xl flex items-center justify-center hover:scale-125 transition-all z-50">
+                <CartIcon iconClassName="w-8 h-8" />
+            </div>
         </div>
     );
 };

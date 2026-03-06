@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import CartIcon from "./CartIcon";
 import { FiShoppingCart, FiUser, FiTruck, FiPackage } from "react-icons/fi";
 import { useCart } from '../context/CartContext.jsx';
 
@@ -40,6 +41,12 @@ const CheckoutPage = () => {
             return;
         }
 
+        // Validasi item yang dipilih
+        if (selectedItems.length === 0) {
+            alert("Kamu belum memilih produk apapun! Centang produk di keranjang terlebih dahulu.");
+            return;
+        }
+
         // Siapkan data untuk halaman pembayaran
         const orderData = {
             formData,
@@ -72,9 +79,7 @@ const CheckoutPage = () => {
                 </button>
 
                 <div className="flex items-center gap-6">
-                    <button onClick={() => navigate("/cart")}>
-                        <FiShoppingCart className="w-6 h-6 text-[#efaca5]" />
-                    </button>
+                    <CartIcon />
                     <button onClick={() => navigate("/profile")} >
                         <FiUser className="w-6 h-6 text-[#efaca5]" />
                     </button>
@@ -198,7 +203,13 @@ const CheckoutPage = () => {
                         
                         {/* Cart Items */}
                         <div className="space-y-4 mb-8">
-                            {selectedItems.map((item) => (
+                            {selectedItems.length === 0 ? (
+                                <div className="text-center py-6 border-2 border-dashed border-[#efaca5] rounded-2xl">
+                                    <p className="text-[#efaca5] text-base">Belum ada produk yang dipilih.</p>
+                                    <p className="text-[#efaca5] text-sm mt-1">Kembali ke keranjang dan centang produk yang ingin dibeli.</p>
+                                </div>
+                            ) : (
+                                selectedItems.map((item) => (
                                 <div key={item.id} className="flex items-start gap-4">
                                     <div className="w-20 h-20 bg-[#f7efda] rounded-2xl overflow-hidden flex-shrink-0">
                                         <img 
@@ -213,7 +224,8 @@ const CheckoutPage = () => {
                                         <p className="text-sm text-[#efaca5]">Rp. {formatRupiah(item.price * item.quantity)}</p>
                                     </div>
                                 </div>
-                            ))}
+                                ))
+                            )}
                         </div>
 
                         {/* Pricing Summary */}

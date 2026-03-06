@@ -1,5 +1,6 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
+import CartIcon from "./CartIcon";
 import { FiUser, FiTrash2, FiShoppingCart } from "react-icons/fi";
 import { useCart } from '../context/CartContext.jsx';
 
@@ -44,9 +45,7 @@ const CartPage = () => {
                 </button>
 
                 <div className="flex items-center gap-6">
-                    <button onClick={() => navigate("/cart")}>
-                        <FiShoppingCart className="w-6 h-6 text-[#efaca5]" />
-                    </button>
+                    <CartIcon />
                     <button onClick={() => navigate("/profile")} >
                         <FiUser className="w-6 h-6 text-[#efaca5]" />
                     </button>

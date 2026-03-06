@@ -1,217 +1,224 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { FiShoppingCart, FiUser } from 'react-icons/fi';
-import { db } from '../firebase'; 
-import { doc, getDoc } from 'firebase/firestore'; 
-// ⭐ Import Framer Motion
-import { motion } from 'framer-motion';
+import { FiShoppingCart, FiDownload, FiUpload } from 'react-icons/fi';
+import { useCart } from '../context/CartContext.jsx';
+import { db } from '../firebase';
+import {
+  doc,
+  onSnapshot,
+  updateDoc,
+  serverTimestamp,
+} from 'firebase/firestore';
+import QRISSpuspita from '../assets/QRISSpuspita.png';
+import { uploadToCloudinary } from '../utils/cloudinaryUpload';
 
-const SuccessPage = () => {
+const QRISPage = () => {
   const navigate = useNavigate();
   const location = useLocation();
-  
-  const initialOrderId = location.state?.orderData?.orderId;
-  
-  const [orderData, setOrderData] = useState(null); 
-  const [loading, setLoading] = useState(true);
+  const { clearCart } = useCart();
+  const orderData = location.state?.orderData;
+
+  const [isApproved, setIsApproved] = useState(false);
+  const [proofFile, setProofFile] = useState(null);
+  const [uploading, setUploading] = useState(false);
 
   useEffect(() => {
-    const fetchOrder = async (orderId) => {
-        if (!orderId) {
-            setLoading(false);
-            return;
-        }
-
-        try {
-            const orderRef = doc(db, 'orders', orderId);
-            const docSnap = await getDoc(orderRef);
-
-            if (docSnap.exists()) {
-                setOrderData({ id: docSnap.id, ...docSnap.data() }); 
-            }
-        } catch (error) {
-            console.error("Gagal mengambil data pesanan:", error);
-        } finally {
-            setLoading(false);
-        }
-    };
-
-    if (initialOrderId) {
-        fetchOrder(initialOrderId);
-    } else {
-        setLoading(false); 
+    if (!orderData || !orderData.orderId) {
+      alert('Data pesanan tidak ditemukan');
+      navigate('/payment');
+      return;
     }
-  }, [initialOrderId]);
 
-  const handleTrackOrder = () => {
-    navigate('/order-tracking', { 
-      state: { orderData } 
-    });
+    const orderRef = doc(db, 'orders', orderData.orderId);
+    const unsubscribe = onSnapshot(
+      orderRef,
+      (docSnap) => {
+        if (!docSnap.exists()) return;
+        const status = docSnap.data().status;
+        if (['confirmed', 'packaged', 'shipped', 'completed'].includes(status)) {
+          setIsApproved(true);
+          clearCart();
+          setTimeout(() => {
+            navigate('/payment/success', {
+              state: { orderData: { ...orderData, status } },
+            });
+          }, 1500);
+        }
+      },
+      (err) => console.error('Listener error:', err)
+    );
+    return () => unsubscribe();
+  }, [orderData, navigate, clearCart]);
+
+  const downloadQRCode = () => {
+    const link = document.createElement('a');
+    link.href = QRISSpuspita;
+    link.download = `QRIS-${orderData?.orderId || 'payment'}.png`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
   };
 
-  const formatRupiah = (number) => {
-    if (typeof number !== 'number') return '0';
-    return number.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+  const handleUploadProof = async () => {
+    if (!proofFile) {
+      alert('Silakan pilih gambar bukti transfer');
+      return;
+    }
+    try {
+      setUploading(true);
+      const result = await uploadToCloudinary(proofFile);
+      await updateDoc(doc(db, 'orders', orderData.orderId), {
+        paymentProofUrl: result.secure_url,
+        paymentProofPublicId: result.public_id,
+        status: 'waiting_confirmation',
+        updatedAt: serverTimestamp(),
+      });
+      alert('Bukti transfer berhasil dikirim, menunggu konfirmasi admin');
+      setProofFile(null);
+    } catch (err) {
+      console.error(err);
+      alert(err.message);
+    } finally {
+      setUploading(false);
+    }
   };
 
-  if (loading) {
-    return (
-        <div className="min-h-screen bg-[#f7efda] flex items-center justify-center">
-             <div className="text-center text-[#3e8440] text-xl font-margarine">Memuat data pesanan...</div>
-        </div>
-    );
-  }
-
-  if (!orderData) {
-    return (
-      <div className="min-h-screen bg-[#f7efda] flex items-center justify-center font-margarine">
-        <div className="text-center">
-          <p className="text-[#3e8440] mb-4">Data pesanan tidak ditemukan. Silakan cek riwayat pesanan.</p>
-          <button
-            onClick={() => navigate('/')}
-            className="bg-[#a4c37a] text-white py-2 px-6 rounded-full"
-          > Kembali ke Home
-          </button>
-        </div>
-      </div>
-    );
-  }
-
-  const orderId = orderData.id || `N/A`;
+  if (!orderData) return null;
 
   return (
-    <div className="min-h-screen bg-[#f7efda] font-margarine flex flex-col items-center">
-        <header className="w-full flex justify-between items-center py-6 px-8 max-w-7xl">
-            <button
-                onClick={() => navigate("/cart")}
-                className="flex items-center gap-2 text-[#badd7f] text-lg"
-            >
-                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-                </svg>
-                Kembali ke keranjang
-            </button>
-            <div className="flex items-center gap-6">
-                <button onClick={() => navigate("/cart")}>
-                    <FiShoppingCart className="w-6 h-6 text-[#efaca5]" />
-                </button>
-                <button onClick={() => navigate("/profile")} >
-                    <FiUser className="w-6 h-6 text-[#efaca5]" />
-                </button>
-            </div>
+    <>
+      <style>
+        {`
+          @keyframes flow {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+          }
+          .moving-gradient {
+            background: linear-gradient(-45deg, #f7efda, #efaca5, #f7efda, #efaca5);
+            background-size: 400% 400%;
+            animation: flow 10s ease infinite;
+          }
+        `}
+      </style>
+
+      <div className="min-h-screen moving-gradient font-margarine flex flex-col">
+        {/* HEADER */}
+        <header className="flex justify-between items-center px-8 py-6">
+          <button
+            onClick={() => navigate('/payment')}
+            className="w-10 h-10 flex items-center justify-center rounded-full bg-white/50 text-[#3e8440] text-2xl hover:bg-white transition-all"
+          >
+            ←
+          </button>
+          <button 
+            onClick={() => navigate('/cart')}
+            className="w-10 h-10 flex items-center justify-center rounded-full bg-white/50 text-[#efaca5] hover:bg-white transition-all"
+          >
+            <FiShoppingCart className="w-5 h-5" />
+          </button>
         </header>
 
-      <motion.div 
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.6 }}
-        className="max-w-xl w-full px-6 py-8"
-      >
-        <div className="p-12 text-center">
-          
-          {/* ⭐ ANIMASI LINGKARAN & CENTANG */}
-          <motion.div 
-            initial={{ scale: 0 }}
-            animate={{ scale: 1 }}
-            transition={{ type: "spring", stiffness: 260, damping: 20, delay: 0.1 }}
-            className="w-20 h-20 bg-[#a4c37a] rounded-full flex items-center justify-center mx-auto mb-6 shadow-lg"
-          >
-            <svg className="w-10 h-10 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <motion.path 
-                initial={{ pathLength: 0, opacity: 0 }}
-                animate={{ pathLength: 1, opacity: 1 }}
-                transition={{ 
-                  duration: 0.8, 
-                  ease: "easeInOut", 
-                  delay: 0.5 // Muncul setelah lingkaran selesai pop-up
-                }}
-                strokeLinecap="round" 
-                strokeLinejoin="round" 
-                strokeWidth={3} 
-                d="M5 13l4 4L19 7" 
-              />
-            </svg>
-          </motion.div>
-
-          <motion.h3 
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 0.8 }}
-            className="text-[#3e8440] font-bold text-4xl mb-2"
-          >
-            Pesanan anda telah dibuat
-          </motion.h3>
-          
-          <motion.p 
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 1 }}
-            className="text-[#efaca5] text-lg mb-8"
-          >
-            Selamat. Pesanan kamu telah kami terima, terima kasih sudah memesan 
-          </motion.p>
-
-          <motion.div 
-            initial={{ scale: 0.9, opacity: 0 }}
-            animate={{ scale: 1, opacity: 1 }}
-            transition={{ delay: 1.2 }}
-            className="bg-[#f7efda] rounded-xl p-6 text-center mb-8 border border-[#e5dec9]"
-          > 
-            <p className="text-[#3e8440] font-semibold text-lg mb-2">Order ID</p>
-            <p className="text-[#efaca5] font-bold text-2xl">{orderId}</p>
-          </motion.div>
-
-          <motion.div 
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 1.4 }}
-            className="grid grid-cols-2 gap-4 text-sm mb-10"
-          >
-            <div className="text-left">
-              <p className="text-[#3e8440] font-semibold mb-1">Status Pembayaran</p>
-              <p className="text-[#efaca5] text-lg capitalize">
-                {orderData.paymentMethod === 'COD' ? 'Bayar di Tempat' : 'Lunas'}
-              </p>
-            </div>
-            
-            <div className="text-left">
-              <p className="text-[#3e8440] font-semibold mb-1">Produk</p>
-              <div className="text-[#efaca5] text-sm">
-                {orderData.items.map((item, index) => (
-                  <span key={index}>
-                    {item.name} ({item.quantity}x)
-                    {index < orderData.items.length - 1 ? ', ' : ''}
-                  </span>
-                ))}
+        {/* CONTENT */}
+        <div className="flex-1 flex items-center justify-center px-4 pb-10">
+          <div className="w-full max-w-xl bg-white/80 backdrop-blur-md border-2 border-[#a4c37a] rounded-[40px] shadow-2xl overflow-hidden">
+            <div className="p-8 md:p-10">
+              
+              {/* TITLE */}
+              <div className="text-center mb-6">
+                <h2 className="text-[#3e8440] text-4xl font-bold tracking-tight">QRIS</h2>
+                <p className="text-[#efaca5] font-semibold text-lg">Puspita, Co</p>
               </div>
-            </div>
 
-            <div className="text-left">
-              <p className="text-[#3e8440] font-semibold mb-1">Tujuan</p>
-              <p className="text-[#efaca5] text-sm">{orderData.formData?.alamatLengkap || '-'}</p>
-            </div>
+              {/* QR IMAGE */}
+              <div className="relative group mx-auto w-fit mb-6">
+                <div className="absolute -inset-1 bg-gradient-to-r from-[#a4c37a] to-[#efaca5] rounded-2xl blur opacity-25 group-hover:opacity-50 transition duration-1000"></div>
+                <div className="relative bg-white p-4 rounded-xl border border-[#efaca5]/30">
+                  <img
+                    src={QRISSpuspita}
+                    alt="QRIS Payment"
+                    className="w-56 h-56 md:w-64 md:h-64 object-contain"
+                  />
+                </div>
+              </div>
 
-            <div className="text-left">
-              <p className="text-[#3e8440] font-semibold mb-1">Total</p>
-              <p className="text-[#efaca5] font-bold text-xl">Rp. {formatRupiah(orderData.grandTotal)}</p>
-            </div>
-          </motion.div>
+              {/* INFO HARGA */}
+              <div className="bg-[#3e8440]/10 rounded-2xl p-4 text-center mb-8">
+                <p className="text-[#3e8440] text-xs uppercase font-bold tracking-widest mb-1">Total yang harus dibayar</p>
+                <p className="text-[#3e8440] text-3xl font-black">
+                  Rp {orderData.grandTotal?.toLocaleString('id-ID')}
+                </p>
+              </div>
 
-          <motion.button
-            whileHover={{ scale: 1.02 }}
-            whileTap={{ scale: 0.98 }}
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 1.6 }}
-            onClick={handleTrackOrder}
-            className="w-full mt-4 bg-[#efaca5] text-[#3e8440] py-3 rounded-full font-bold text-lg hover:bg-[#D79A9E] transition-colors shadow-md"
-          >
-            Lacak Pesanan
-          </motion.button>
+              {/* DOWNLOAD BUTTON */}
+              <button
+                onClick={downloadQRCode}
+                className="w-full mb-8 bg-white border-2 border-[#3e8440] text-[#3e8440] py-3 rounded-2xl font-bold hover:bg-[#3e8440] hover:text-white transition-all flex items-center justify-center gap-2 shadow-sm"
+              >
+                <FiDownload />
+                Simpan QR Code ke Galeri
+              </button>
+
+              {/* UPLOAD SECTION */}
+              <div className="space-y-4 border-t border-[#a4c37a]/20 pt-6">
+                <div className="text-center">
+                  <span className="bg-[#efaca5] text-white px-4 py-1 rounded-full text-xs font-bold uppercase">Langkah Terakhir</span>
+                  <h3 className="text-[#3e8440] font-bold mt-2">Kirim Bukti Pembayaran</h3>
+                </div>
+
+                <div className="relative">
+                  <input
+                    type="file"
+                    accept="image/*"
+                    onChange={(e) => setProofFile(e.target.files[0])}
+                    className="block w-full text-sm text-[#3e8440]
+                      file:mr-4 file:py-2 file:px-4
+                      file:rounded-xl file:border-0
+                      file:text-xs file:font-bold
+                      file:bg-[#3e8440] file:text-white
+                      hover:file:bg-[#efaca5] transition-all
+                      cursor-pointer bg-white/50 rounded-xl p-1"
+                  />
+                </div>
+
+                <button
+                  onClick={handleUploadProof}
+                  disabled={uploading}
+                  className="w-full bg-[#efaca5] text-white py-4 rounded-2xl font-bold hover:bg-[#3e8440] transition-all disabled:bg-gray-300 shadow-lg flex items-center justify-center gap-2"
+                >
+                  {uploading ? (
+                    <span className="flex items-center gap-2">
+                      <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                      Sedang Mengirim...
+                    </span>
+                  ) : (
+                    <>
+                      <FiUpload />
+                      Konfirmasi Saya Sudah Bayar
+                    </>
+                  )}
+                </button>
+              </div>
+
+              {/* REALTIME STATUS FOOTER */}
+              <div className="mt-8 pt-4 text-center">
+                {isApproved ? (
+                  <div className="flex items-center justify-center gap-2 text-[#3e8440] font-bold bg-green-100 py-2 rounded-lg">
+                    <span>✅ Pembayaran Diterima!</span>
+                  </div>
+                ) : (
+                  <p className="text-[#efaca5] text-xs font-medium animate-pulse">
+                    Sistem sedang memantau pembayaranmu secara otomatis...
+                  </p>
+                )}
+              </div>
+
+            </div>
+          </div>
         </div>
-      </motion.div>
-    </div>
+      </div>
+    </>
   );
 };
 
-export default SuccessPage;
+export default QRISPage;

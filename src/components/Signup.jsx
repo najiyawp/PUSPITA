@@ -16,21 +16,33 @@ const Signup = () => {
 
     const handleSignup = async (e) => {
         e.preventDefault()
+        if (!name.trim()) {
+            setError('Nama tidak boleh kosong');
+            return;
+        }
         try {
             const userCredential = await createUserWithEmailAndPassword(auth, email, password);
             const user = userCredential.user;
 
             await setDoc(doc(db, 'users', user.uid), {
                 email: user.email,
+                username: name.trim(),
                 role: 'user',
                 createdAt: new Date(),
             });
 
-            console.log('User created succesfully');
-            alert('Anda telah terdaftar')
-            navigate('/login')
+            console.log('User created successfully');
+            alert('Anda telah terdaftar');
+            navigate('/login');
         } catch (error) {
-            console.error('Error signing up:', error.message)
+            console.error('Error signing up:', error.message);
+            if (error.code === 'auth/email-already-in-use') {
+                setError('Email sudah terdaftar. Silakan login.');
+            } else if (error.code === 'auth/weak-password') {
+                setError('Password minimal 6 karakter.');
+            } else {
+                setError('Gagal mendaftar. Silakan coba lagi.');
+            }
         }
     };
 
@@ -50,7 +62,24 @@ const Signup = () => {
 
                         <h2 className="text-4xl text-[#efaca5] mb-8 text-center md:text-center">Signup</h2>
 
+                        {error && (
+                            <div className="mb-4 p-3 bg-red-100 border border-red-400 text-red-700 rounded-lg text-center text-sm">
+                                {error}
+                            </div>
+                        )}
+
                         <form onSubmit={handleSignup} className="space-y-6">
+
+                            <div className="relative">
+                                <input
+                                    type="text"
+                                    placeholder="Masukkan nama lengkap"
+                                    value={name}
+                                    onChange={(e) => setName(e.target.value)}
+                                    className="w-full py-3 px-5 border-2 border-[#3e8440] rounded-full focus:outline-none focus:border-[#C56B83] text-[#efaca5]"
+                                    required
+                                />
+                            </div>
 
                             <div className="relative">
                                 <input

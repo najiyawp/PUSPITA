@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
+import CartIcon from "./CartIcon";
 import { FiShoppingCart, FiUser, FiChevronDown } from 'react-icons/fi';
 import { useCart } from '../context/CartContext.jsx';
 import { db } from '../firebase'; 
@@ -54,17 +55,16 @@ const PaymentPage = () => {
     };
 
     try {
-
         const docRef = await addDoc(collection(db, "orders"), finalOrderData);
         const orderId = docRef.id; 
-
-        clearCart(); 
 
         const paymentInfoWithId = { ...finalOrderData, orderId };
 
         if (paymentMethod === 'QRIS') {
+            // Jangan clearCart dulu — cart dibersihkan setelah admin konfirmasi di QRISPage
             navigate('/payment/qris', { state: { orderData: paymentInfoWithId } });
         } else if (paymentMethod === 'COD') {
+            clearCart(); // COD langsung bersihkan cart
             navigate('/payment/success', { state: { orderData: paymentInfoWithId } });
         }
     } catch (error) {
@@ -102,9 +102,7 @@ const PaymentPage = () => {
           Kembali
         </button>
         <div className="flex items-center gap-6">
-          <button onClick={() => navigate("/cart")}>
-            <FiShoppingCart className="w-6 h-6 text-[#efaca5]" />
-          </button>
+          <CartIcon />
           <button onClick={() => navigate("/profile")} >
             <FiUser className="w-6 h-6 text-[#efaca5]" />
           </button>

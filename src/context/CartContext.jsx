@@ -75,9 +75,13 @@ export const CartProvider = ({ children }) => {
     return item.isSelected ? total + (item.price * item.quantity) : total;
   }, 0);
 
+  // 9. Hitung Total Jumlah Item di Keranjang (semua item, bukan hanya yang selected)
+  const totalItems = cart.reduce((total, item) => total + item.quantity, 0);
+
   const value = {
     cart,
     totalKeranjang,
+    totalItems,
     addToCart,
     updateQuantity,
     removeItem,

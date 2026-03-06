@@ -1,15 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate, useLocation } from 'react-router-dom';
-import { FiShoppingCart, FiUser, FiClock, FiCheckCircle, FiPackage, FiTruck, FiArchive } from 'react-icons/fi';
-// ⭐ Imports Firebase
+import { useNavigate, useLocation, useSearchParams } from 'react-router-dom';
+import CartIcon from "./CartIcon";
+import { FiUser, FiClock, FiCheckCircle, FiPackage, FiTruck, FiArchive } from 'react-icons/fi';
 import { db } from '../firebase'; 
 import { doc, onSnapshot } from 'firebase/firestore'; 
-
-// Impor gambar bunga untuk status 'Selesai' (GANTI DENGAN LOKASI ASLI ANDA)
-// Menggunakan Rose dari file yang Anda kirim
 import Rose from '../assets/Rose.png'; 
 
-// Definisi langkah-langkah pelacakan pesanan (TETAP)
 const USER_TRACKING_STEPS = [
     { label: 'Menunggu pembayaran', statusKeys: ['waiting_payment'], icon: FiClock },
     { label: 'Diterima', statusKeys: ['confirmed', 'pending_delivery'], icon: FiCheckCircle }, 
@@ -18,7 +14,6 @@ const USER_TRACKING_STEPS = [
     { label: 'Selesai', statusKeys: ['completed'], icon: FiArchive }, 
 ];
 
-// Definisi Warna Sesuai Gambar UI (TETAP)
 const COLORS = {
     BG_LIGHT: '#f7efda',      
     TEXT_GREEN: '#3e8440',    
@@ -29,63 +24,50 @@ const COLORS = {
     LINE_GREEN: '#a4c37a',    
 };
 
-// ⭐ FUNGSI BARU: FORMAT TANGGAL
 const formatDate = (timestamp) => {
     if (!timestamp) return 'N/A';
-    
-    // Asumsi: data dari Firestore adalah Firestore Timestamp atau Date Object
     let date;
     if (timestamp.toDate) {
         date = timestamp.toDate();
     } else if (timestamp instanceof Date) {
         date = timestamp;
     } else {
-        // Jika hanya berupa string, coba konversi
         date = new Date(timestamp);
     }
-
     if (isNaN(date.getTime())) return 'N/A';
-    
-    // Format ke "30 Februari 2025" (gunakan ID untuk bahasa Indonesia)
     return date.toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' });
 };
-// ⭐ AKHIR FUNGSI BARU
 
 const OrderTrackingPage = () => {
     const navigate = useNavigate();
     const location = useLocation();
+    const [searchParams] = useSearchParams();
     
-    // Ambil orderData lengkap yang dikirim dari SuccessPage
+    // Ambil order ID dari location.state (dari SuccessPage) ATAU dari URL query param ?orderId=xxx (setelah refresh)
     const passedOrderData = location.state?.orderData;
-    
-    const initialOrderId = passedOrderData?.id; 
+    const initialOrderId = passedOrderData?.id || searchParams.get('orderId');
 
-    // Gunakan data yang dibawa dari SuccessPage sebagai state awal
     const [orderData, setOrderData] = useState(passedOrderData || null);
-    const [loading, setLoading] = useState(!passedOrderData); 
+    const [loading, setLoading] = useState(true); 
     const [error, setError] = useState(null);
     const [showThankYou, setShowThankYou] = useState(false); 
 
-    // ⭐ LOGIKA REAL-TIME FETCH DARI FIRESTORE (TETAP)
     useEffect(() => {
         if (!initialOrderId) {
-            if (!passedOrderData) {
-                setError("ID Pesanan atau data tidak ditemukan.");
-            }
+            setError("ID Pesanan tidak ditemukan. Coba buka dari riwayat pesanan.");
             setLoading(false);
             return;
         }
 
+        // Selalu fetch dari Firestore supaya data fresh dan page tahan refresh
         const orderRef = doc(db, 'orders', initialOrderId);
 
         const unsubscribe = onSnapshot(orderRef, (docSnap) => {
             if (docSnap.exists()) {
                 const data = { id: docSnap.id, ...docSnap.data() };
-                
                 setOrderData(data);
                 setLoading(false);
                 if (data.feedback) { setShowThankYou(true); }
-
             } else {
                 setError("Pesanan tidak ditemukan di database.");
                 setLoading(false);
@@ -167,9 +149,7 @@ const OrderTrackingPage = () => {
                 Kembali ke keranjang
             </button>
                 <div className="flex items-center gap-6">
-                    <button onClick={() => navigate("/cart")}>
-                      <FiShoppingCart className="w-6 h-6" style={{ color: COLORS.TEXT_PINK }} />
-                    </button>
+                    <CartIcon />
                     <button onClick={() => navigate("/profile")}>
                       <FiUser className="w-6 h-6" style={{ color: COLORS.TEXT_PINK }} />
                     </button>

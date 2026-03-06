@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
+import CartIcon from "./CartIcon";
 import { FiArrowLeft, FiUser, FiShoppingCart } from "react-icons/fi";
 import { useCart } from "../context/CartContext.jsx";
 
@@ -100,12 +101,7 @@ const ProductDetail = () => {
                 </button>
 
                 <div className="flex items-center gap-6">
-                    <button 
-                        onClick={() => navigate("/cart")}
-                        className="text-[#3e8440]"
-                    >
-                        <FiShoppingCart className="w-6 h-6" />
-                    </button>
+                    <CartIcon />
                     <button
                         onClick={() => navigate("/profile")} 
                         className="text-[#3e8440]">
